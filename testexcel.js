@@ -5,7 +5,7 @@
  * Run: node testexcel.js
  */
 
-const ExcelHandler = require("./cphrma/utils/excelHandeler");
+const ExcelHandler = require("./utils/excelHandeler");
 
 const handler = new ExcelHandler("employees.xlsx", "Employees");
 

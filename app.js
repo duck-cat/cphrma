@@ -1,7 +1,11 @@
-const express= require('express');
-const app=express();
-const homeRouter=require('./routes/home.router');
+const express = require('express');
+const app = express();
+const homeRouter = require('./routes/home.router');
+const inventoryRouter = require('./routes/inventory.router');
 
-app.use('/api/v1',homeRouter);
+app.use(express.json());
 
-module.exports=app; 
+app.use('/api/v1', homeRouter);
+app.use('/api/v1', inventoryRouter);
+
+module.exports = app; 
