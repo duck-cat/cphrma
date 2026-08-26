@@ -1,16 +1,17 @@
 const path = require('path');
 const ExcelHandler = require('../utils/excelHandeler');
 
-const handler = new ExcelHandler(path.join(__dirname, '../files/inventory.xlsx'), 'Sheet1');
+const handler = new ExcelHandler(path.join(__dirname, '../files/inventory.xlsx'), 'Inventory');
 
 const REQUIRED_FIELDS = [
-  'item_number',
+  'hsn_number',
+  'batch_number',
   'item_name',
   'item_description',
   'quantity',
   'mfg_date',
   'expiry_date',
-  'entry_date',
+  'purchage_date',
   'location',
   'supplier_name',
   'supplier_details',
@@ -50,7 +51,7 @@ exports.createInventory = (req, res) => {
 
 // GET /api/v1/inventory
 exports.getAllInventory = (req, res) => {
-  try {
+  try {debugger;
     const data = handler.read();
     return res.status(200).json({ status: 'success', count: data.length, data });
   } catch (err) {
