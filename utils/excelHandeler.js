@@ -66,20 +66,86 @@ class ExcelHandler {
   // ── READ ───────────────────────────────────────────────────────────────────
 
   /**
-   * Read all rows from the sheet.
-   * @param {Object} [filter] - optional key/value pairs to filter rows
-   * @returns {Object[]}
-   */
-  read(filter = null) {
-    const wb = this._loadWorkbook();
-    const rows = this._getRows(wb);
-    if (!filter) return rows;
+ * Read rows with optional filters and name substring search.
+ *
+ * @param {Object|null} filter - optional key/value pairs to filter rows
+ * @param {string} [search] - medicine name substring
+ * @returns {Object[]}
+ */
+read(filter = null, search = '') {
+  const wb = this._loadWorkbook();
+  const rows = this._getRows(wb);
 
-    return rows.filter((row) =>
-      Object.entries(filter).every(([k, v]) => row[k] === v)
+  let result = rows;
+
+  // Search medicine by name
+  if (search && search.trim()) {
+    const keyword = search.trim().toLowerCase();
+
+    result = result.filter(row =>
+      String(row.name || '').toLowerCase().includes(keyword)
     );
   }
 
+  // Apply additional filters
+  if (filter && Object.keys(filter).length) {
+    result = result.filter(row =>
+      Object.entries(filter).every(([key, value]) =>
+        row[key] === value
+      )
+    );
+  }
+
+  return result;
+}
+
+/**
+ * Fast medicine name search using binary search.
+ * Requires rows sorted alphabetically by name.
+ *
+ * @param {string} search
+ * @returns {Object[]}
+ */
+searchByName(search) {
+  if (!search || !search.trim()) return [];
+
+  const rows = this.read();
+  const keyword = search.trim().toLowerCase();
+
+  let left = 0;
+  let right = rows.length - 1;
+  let start = -1;
+
+  // Binary search for first matching prefix
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2);
+    const name = String(rows[mid].name || '').toLowerCase();
+
+    if (name.startsWith(keyword)) {
+      start = mid;
+      right = mid - 1;
+    } else if (name < keyword) {
+      left = mid + 1;
+    } else {
+      right = mid - 1;
+    }
+  }
+
+  if (start === -1) return [];
+
+  // Collect all matching records
+  const result = [];
+
+  for (let i = start; i < rows.length; i++) {
+    const name = String(rows[i].name || '').toLowerCase();
+
+    if (!name.startsWith(keyword)) break;
+
+    result.push(rows[i]);
+  }
+
+  return result;
+}
   /**
    * Read a single row by 0-based index.
    * @param {number} index

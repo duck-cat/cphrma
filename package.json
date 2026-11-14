@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ngrok/ngrok": "^1.7.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "qrcode-terminal": "^0.12.0",
